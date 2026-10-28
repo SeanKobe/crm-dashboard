@@ -1,0 +1,108 @@
+@import '@fontsource-variable/inter';
+@import 'tailwindcss';
+@import './theme.css';
+
+@theme {
+  --animate-row-in: row-in 0.2s ease-out;
+  @keyframes row-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-background font-sans text-text-primary antialiased;
+  }
+}
+
+/* Motion utilities backed by the shared motion tokens (src/theme.css <- design/figma-tokens.json). */
+@utility duration-hover { transition-duration: var(--duration-hover); }
+@utility duration-move { transition-duration: var(--duration-move); }
+@utility duration-chart { transition-duration: var(--duration-chart); }
+@utility duration-chart-hover { transition-duration: var(--duration-chart-hover); }
+
+@theme {
+  --animate-rise: rise var(--duration-move) var(--ease-out) both;
+  --animate-fade-out: fade-out var(--duration-move) var(--ease-out) both;
+  --animate-draw: draw var(--duration-chart) var(--ease-out) both;
+  --animate-pop: pop 0.45s var(--ease-out) both;
+  --animate-fade-in: fade-in var(--duration-move) var(--ease-out) both;
+  --animate-shimmer: shimmer 1.2s linear infinite;
+  --animate-spin-once: spin 0.8s var(--ease-out) 1;
+  --animate-slide-in-left: slide-in-left var(--duration-move) var(--ease-out) both;
+  --animate-slide-in-right: slide-in-right var(--duration-move) var(--ease-out) both;
+  --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
+  --animate-bounce-in: bounce-in 0.5s var(--ease-out) both;
+  @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes pop { 0% { opacity: 0; transform: scale(0); } 60% { opacity: 1; transform: scale(1.25); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  @keyframes slide-in-left { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+  @keyframes slide-in-right { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+  @keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.7); opacity: 0.55; } }
+  @keyframes bounce-in { 0% { opacity: 0; transform: translateY(6px); } 60% { opacity: 1; transform: translateY(-3px); } 100% { opacity: 1; transform: none; } }
+}
+
+/* Respect reduced motion everywhere: no animation or transition longer than a frame. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Figma "Focus" state: 1.5px primary stroke inside the element plus a 3px focus-ring halo. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 1.5px solid var(--color-primary);
+    outline-offset: -1.5px;
+    --tw-ring-shadow: 0 0 0 3px var(--color-focus-ring);
+    box-shadow: var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  }
+}
+
+/* Text-safe variants of the status colors for small text (derived from the theme tokens; they keep >= 4.5:1 on white and on their own tints). */
+@utility text-success-strong { color: color-mix(in oklab, var(--color-success) 58%, black); }
+@utility text-danger-strong { color: color-mix(in oklab, var(--color-danger) 68%, black); }
+/* text-muted darkened just enough for 4.5:1 on white (Dashboard sidebar subtitle and storage note). */
+@utility text-muted-strong { color: color-mix(in oklab, var(--color-text-muted) 78%, black); }
+@utility text-info-strong { color: color-mix(in oklab, var(--color-info) 62%, black); }
+
+/* Note editor body (TipTap / ProseMirror) styled with theme tokens. */
+.note-prose { min-height: 12rem; outline: none; font-size: var(--text-sm); line-height: 1.5rem; color: var(--color-text-primary); }
+.note-prose > * + * { margin-top: 0.5rem; }
+.note-prose h1 { font-size: var(--text-amount); line-height: 1.75rem; font-weight: 500; margin-top: 1.25rem; }
+.note-prose h2 { font-size: var(--text-lg); line-height: 1.5rem; font-weight: 500; margin-top: 1.25rem; }
+.note-prose h3 { font-size: var(--text-base); line-height: 1.5rem; font-weight: 500; margin-top: 1rem; }
+.note-prose ul:not([data-type='taskList']) { list-style: disc; padding-left: 1.25rem; }
+.note-prose ol { list-style: decimal; padding-left: 1.25rem; }
+.note-prose li > p { margin: 0; }
+.note-prose li + li { margin-top: 0.25rem; }
+.note-prose strong { font-weight: 600; }
+.note-prose a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.note-prose ul[data-type='taskList'] { list-style: none; padding: 0; }
+.note-prose ul[data-type='taskList'] li { display: flex; align-items: flex-start; gap: 0.5rem; }
+.note-prose ul[data-type='taskList'] li > label { display: flex; align-items: center; height: 1.5rem; flex-shrink: 0; }
+.note-prose ul[data-type='taskList'] li > label input { width: 1.125rem; height: 1.125rem; accent-color: var(--color-primary); cursor: pointer; }
+.note-prose ul[data-type='taskList'] li > div { flex: 1; min-width: 0; }
+.note-prose ul[data-type='taskList'] li[data-checked='true'] > div { color: var(--color-text-secondary); text-decoration: line-through; }
+.note-prose p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; pointer-events: none; color: var(--color-text-secondary); }
+.note-prose :focus-visible { outline: none; }
