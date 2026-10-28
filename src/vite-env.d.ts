@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL?: string
   /** Supabase public (anon) key. */
   readonly VITE_SUPABASE_ANON_KEY?: string
+  /** Shared password of the three demo accounts. Unset = no "Try the demo" buttons on the sign-in page. */
+  readonly VITE_DEMO_PASSWORD?: string
 }
 
 interface ImportMeta {

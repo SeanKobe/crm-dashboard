@@ -56,6 +56,10 @@ export interface AuthApi {
   signIn: (email: string, password: string) => Promise<AuthResult>
   signUp: (email: string, password: string, fullName: string) => Promise<AuthResult>
   signOut: () => Promise<void>
+  /** Counts up after the demo data was reset: the app remounts under it so every page loads fresh data. */
+  dataVersion: number
+  /** Re-prepares the data services for the signed-in person (empty caches, saved view settings) and refreshes every page. */
+  refreshData: () => Promise<void>
   resetPassword: (email: string) => Promise<AuthResult>
   /** Sets a new password for the signed-in person (the reset link signs them in first). */
   updatePassword: (password: string) => Promise<AuthResult>

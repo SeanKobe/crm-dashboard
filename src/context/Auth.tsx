@@ -13,6 +13,7 @@ const demoResult: AuthResult = { ok: false, error: { code: 'demo', message: 'Sig
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session>({ user: null, profile: null, loading: !isDemoMode })
   const [signedOut, setSignedOut] = useState(false)
+  const [dataVersion, setDataVersion] = useState(0)
   // Every change of who is signed in takes a number; a slow profile request for an older number is dropped when it finally answers
   // (otherwise a sign out that happens while a profile is still loading would be undone by it).
   const turn = useRef(0)
@@ -35,13 +36,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = await fetchProfile(user)
       if (!live || mine !== turn.current) return
       await prepare(user, profile)
-      if (live && mine === turn.current) setSession({ user, profile, loading: false })
+      if (live && mine === turn.current) { setSignedOut(false); setSession({ user, profile, loading: false }) }
     }
     currentUser().then(apply).catch(() => { if (live) setSession({ user: null, profile: null, loading: false }) })
     // Calling Supabase from inside its own change callback can deadlock, so the work is moved out of the callback.
     watchSession((event, user) => {
       setTimeout(() => {
-        if (event === 'signed-out') { turn.current += 1; forget(); setSession({ user: null, profile: null, loading: false }) }
+        if (event === 'signed-out') { turn.current += 1; forget(); setSignedOut(true); setSession({ user: null, profile: null, loading: false }) }
         else void apply(user)
       }, 0)
     }).then((stop) => { if (live) unsubscribe = stop; else stop() }).catch(() => undefined)
@@ -81,6 +82,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession({ user: null, profile: null, loading: false })
   }, [forget])
 
+  const sessionRef = useRef(session)
+  useEffect(() => { sessionRef.current = session })
+  const refreshData = useCallback(async () => {
+    const { user, profile } = sessionRef.current
+    if (!user || !profile) return
+    forget()
+    await prepare(user, profile)
+    setDataVersion((v) => v + 1)
+  }, [forget, prepare])
+
   const resetPassword = useCallback<AuthApi['resetPassword']>(async (email) => (isDemoMode ? demoResult : requestPasswordReset(email)), [])
   const updatePassword = useCallback<AuthApi['updatePassword']>(async (password) => (isDemoMode ? demoResult : setNewPassword(password)), [])
 
@@ -94,9 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signOut,
+    dataVersion,
+    refreshData,
     resetPassword,
     updatePassword,
-  }), [session, signedOut, signIn, signUp, signOut, resetPassword, updatePassword])
+  }), [session, signedOut, dataVersion, signIn, signUp, signOut, refreshData, resetPassword, updatePassword])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -54,6 +54,7 @@ Open **SQL Editor > New query**, paste the whole file, click **Run**, and wait f
 2. `supabase/migrations/20251020000002_rls.sql`: row level security, the role helper functions and every policy.
 3. `supabase/migrations/20251028000001_tasks_policy.sql`: sales reps can see and update tasks assigned to them (and read the project those tasks are in).
 4. `supabase/migrations/20251028000002_user_prefs.sql`: saved view settings per person (filters, views, recent searches), and lets the app keep its own "last edited" times.
+5. `supabase/migrations/20251029000001_reset_demo_data.sql`: the `reset_demo_data()` function behind the demo banner's **Reset demo data** button (optional; only needed for the visitor demo, see below). Run it after step 5 below has loaded the seed once.
 
 If one fails, stop and read the error message; don't skip ahead. (Running a file twice fails with "already exists": that means it already worked.)
 
@@ -101,6 +102,18 @@ Use only the anon key in `.env`: it is meant to be public, and the row level sec
 
 For the password-reset email to land back in the app, add `http://localhost:5173/reset-password` under **Authentication > URL Configuration > Redirect URLs**
 (and set **Site URL** to `http://localhost:5173`).
+
+### Visitor demo: "Try the demo" buttons and Reset (optional)
+Want people (a recruiter, a teammate) to look around without creating an account? Set one more variable in `.env`:
+
+```bash
+VITE_DEMO_PASSWORD=the-password-you-gave-the-three-demo-accounts
+```
+
+- The sign-in page then shows **Explore as Admin / Manager / Sales rep**. Each button signs in as `admin@pivora.test`, `manager@pivora.test` or `rep@pivora.test` with that password. Without the variable the buttons are hidden and the normal sign-in is unchanged.
+- **Add the same variable in your hosting settings too** (on Vercel: Project > Settings > Environment Variables, for Production and Preview, then redeploy). Vite reads it at build time, so it must exist where the site is built.
+- The password is compiled into the public JavaScript, so anyone can read it. That is fine only because these three accounts hold **sample data only**: never reuse a real password, and never give these accounts real data.
+- While signed in as one of the three accounts a slim banner says "You're exploring a demo with sample data. Changes may be reset." with **Reset demo data** and **Sign out**. Reset (after a confirmation) calls the `reset_demo_data()` function from migration 5, which puts the sample data back to how `seed.sql` creates it (ownership shared round-robin over the three accounts). Only those three accounts may call it, and it never touches rows owned by anyone else.
 
 ### 7. Run the app
 ```bash

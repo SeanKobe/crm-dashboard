@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router'
 import App from './App'
 import { GuestOnly, RequireAuth } from './components/auth/guards'
+import { useAuth } from './context/authContext'
 import { AppShellSkeleton } from './components/RouteFallbacks'
 
 // The top of the router: the sign-in screens are public, everything else sits behind the route guard. In demo mode (no Supabase
@@ -13,6 +14,7 @@ const ForgotPasswordPage = lazy(() => load().then((m) => ({ default: m.ForgotPas
 const ResetPasswordPage = lazy(() => load().then((m) => ({ default: m.ResetPasswordPage })))
 
 export default function Root() {
+  const { dataVersion } = useAuth()
   return (
     <Suspense fallback={<AppShellSkeleton />}>
       <Routes>
@@ -20,7 +22,7 @@ export default function Root() {
         <Route path="/signup" element={<GuestOnly><SignUpPage /></GuestOnly>} />
         <Route path="/forgot-password" element={<GuestOnly><ForgotPasswordPage /></GuestOnly>} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="*" element={<RequireAuth><App /></RequireAuth>} />
+        <Route path="*" element={<RequireAuth><App key={dataVersion} /></RequireAuth>} />
       </Routes>
     </Suspense>
   )

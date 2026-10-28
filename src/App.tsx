@@ -21,6 +21,7 @@ import { EmptyState } from './components/ui/EmptyState'
 import { KPICard } from './components/ui/KPICard'
 import { ToastProvider } from './components/ui/Toast'
 import { DataFailureToasts } from './components/ui/DataFailureToasts'
+import { DemoBanner } from './components/layout/DemoBanner'
 import { cn } from './lib/cn'
 
 // Each route is its own chunk. They are fetched in the background once the Dashboard is idle, so moving between pages is instant.
@@ -101,7 +102,9 @@ export default function App() {
          <DealsProvider>
          <RecordsProvider>
           <a href="#main" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus() }} className="fixed left-4 top-4 z-[90] -translate-y-20 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-hover outline-none transition-[transform,translate] duration-hover ease-out focus:translate-y-0 motion-reduce:transition-none">Skip to main content</a>
-          <div className={cn('flex h-screen bg-background', isDashboard && 'min-w-[1280px]')}>
+          <div className={cn('flex h-screen flex-col bg-background', isDashboard && 'min-w-[1280px]')}>
+          <DemoBanner />
+          <div className="flex min-h-0 flex-1">
             <div className="flex shrink-0 animate-rise" style={rise(0)}>
               <Sidebar activeId={activeId} onNavigate={(id) => navigate(PATHS[id])} />
             </div>
@@ -124,6 +127,7 @@ export default function App() {
                 </Routes>
               </main>
             </div>
+          </div>
           </div>
          </RecordsProvider>
          </DealsProvider>

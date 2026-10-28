@@ -5,6 +5,7 @@ import { validateEmail, validateLoginPassword } from '../../lib/authValidation'
 import { Button } from '../ui/Button'
 import { AuthField } from './AuthField'
 import { AuthLayout } from './AuthLayout'
+import { DemoSignIn } from './DemoSignIn'
 import { useAuthForm } from './authForm'
 
 // /login. Success is handled by the route guard: once the session is set it sends the person to the page they asked for (?next=) or the Dashboard.
@@ -46,6 +47,7 @@ export function LoginPage() {
         </div>
         <Button variant="primary" submit fullWidth state={form.busy ? 'loading' : 'default'}>{form.busy ? 'Signing in…' : 'Sign in'}</Button>
       </form>
+      <DemoSignIn />
     </AuthLayout>
   )
 }
